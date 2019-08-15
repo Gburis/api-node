@@ -1,0 +1,7 @@
+npm install connect-multiparty --save
+
+instalação dos modulos necessarios 
+
+var multiparty = require('connect-multiparty');
+
+var fs = require('fs');

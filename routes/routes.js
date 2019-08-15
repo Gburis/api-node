@@ -1,15 +1,15 @@
 const { check, validationResult } = require('express-validator');
 
-module.exports = function(app, db, objectId){
+module.exports = function(app, db, objectId, fs){
     app.get('/', function(req, res){
         res.send('api');
     });
 
     app.post('/api', [
         check('name').not().isEmpty().withMessage('name is not null'),
-        check('image').not().isEmpty().withMessage('image is not null'),
 
     ],function(req, res){
+
 
         let errors = validationResult(req);
         let arr = errors.array();
@@ -18,7 +18,30 @@ module.exports = function(app, db, objectId){
             return false;
         }
 
-        let data = req.body;
+        let date =  new Date();
+
+        let time = date.getTime();
+
+        let name_image = time+'_'+req.files.image.originalFilename;
+
+        let path_origin = req.files.image.path;
+        let path_destiny = './uploads/'+name_image;
+
+        fs.rename(path_origin, path_destiny, function(err){
+            if(err){
+                res.status(500).json({error: err});
+                return false;
+            }
+        });
+
+        title = req.body.name;
+
+        let data = {
+            name: title,
+            image: name_image
+        };
+
+
         db.open(function(err, mongoclient){
             mongoclient.collection('postagens', function(err, collection){
                 collection.insert(data, function(err, records){
@@ -35,7 +58,7 @@ module.exports = function(app, db, objectId){
     
         db.open(function(err, mongoclient){
             mongoclient.collection('postagens', function(err, collection){
-                collection.find().toArray(function(err, resul){
+                collection.find().sort({'name': -1}).toArray(function(err, resul){
 
 
                     !err ? res.status(200).json(resul) : res.status(500).json(err);

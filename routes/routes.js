@@ -53,6 +53,24 @@ module.exports = function(app, db, objectId, fs){
             });
         });
     });
+    
+    // acesso a imagens no servidor
+
+    app.get('/uploads/:img', function(req, res){
+        let img = req.params.img;
+        console.log(img);
+        fs.readFile('./uploads/'+img, function(err, content){
+            if(err){
+                fs.readFile('./uploads/sem.jpeg', function(err, content){
+                    res.end(content);
+                });
+                return false;
+            }
+
+            res.writeHead(200, {'content-type':'image/jpg'}, {'content-type':'image/png'}, {'content-type':'image/gif'});
+            res.end(content);
+        });
+    });
 
     app.get('/api', function(req, res){
     
